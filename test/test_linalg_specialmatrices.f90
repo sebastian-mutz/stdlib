@@ -31,6 +31,10 @@ contains
             real(sp), allocatable :: Amat(:,:), dl(:), dv(:), du(:)
             real(sp), allocatable :: x(:)
             real(sp), allocatable :: y1(:), y2(:)
+            real(sp) :: alpha, beta
+
+            integer :: i, j
+            real(sp), parameter :: coeffs(3) = [-1.0_wp, 0.0_wp, 1.0_wp]
 
             ! Initialize matrix.
             allocate(dl(n-1), dv(n), du(n-1))
@@ -51,6 +55,43 @@ contains
             y1 = matmul(transpose(Amat), x) ; call spmv(A, x, y2, op="T")
             call check(error, all_close(y1, y2), .true.)
             if (allocated(error)) return
+
+
+            ! Test y = alpha * A @ x + beta * y for alpha,beta in {-1,0,1}
+            do i = 1, 3
+                do j = 1,3
+                    alpha = coeffs(i)
+                    beta = coeffs(j)
+
+                    y1 = 0.0_wp
+                    call random_number(y2)
+                    y1 = alpha * matmul(Amat, x) + beta * y2
+                    call spmv(A, x, y2, alpha=alpha, beta=beta)
+                    call check(error, all_close(y1, y2), .true.)
+                    if (allocated(error)) return
+                end do
+            end do
+
+            ! Test y = A @ x for random values of alpha and beta
+            y1 = 0.0_wp
+            call random_number(alpha)
+            call random_number(beta)
+            call random_number(y2)
+            y1 = alpha * matmul(Amat, x) + beta * y2
+            call spmv(A, x, y2, alpha=alpha, beta=beta)
+            call check(error, all_close(y1, y2), .true.)
+            if (allocated(error)) return
+
+            ! Test y = A.T @ x for random values of alpha and beta
+            y1 = 0.0_wp
+            call random_number(alpha)
+            call random_number(beta)
+            call random_number(y2)
+            y1 = alpha * matmul(transpose(Amat), x) + beta * y2
+            call spmv(A, x, y2, alpha=alpha, beta=beta, op="T")
+            call check(error, all_close(y1, y2), .true.)
+            if (allocated(error)) return
+
 
         end block
         block
@@ -60,6 +101,10 @@ contains
             real(dp), allocatable :: Amat(:,:), dl(:), dv(:), du(:)
             real(dp), allocatable :: x(:)
             real(dp), allocatable :: y1(:), y2(:)
+            real(dp) :: alpha, beta
+
+            integer :: i, j
+            real(dp), parameter :: coeffs(3) = [-1.0_wp, 0.0_wp, 1.0_wp]
 
             ! Initialize matrix.
             allocate(dl(n-1), dv(n), du(n-1))
@@ -80,6 +125,43 @@ contains
             y1 = matmul(transpose(Amat), x) ; call spmv(A, x, y2, op="T")
             call check(error, all_close(y1, y2), .true.)
             if (allocated(error)) return
+
+
+            ! Test y = alpha * A @ x + beta * y for alpha,beta in {-1,0,1}
+            do i = 1, 3
+                do j = 1,3
+                    alpha = coeffs(i)
+                    beta = coeffs(j)
+
+                    y1 = 0.0_wp
+                    call random_number(y2)
+                    y1 = alpha * matmul(Amat, x) + beta * y2
+                    call spmv(A, x, y2, alpha=alpha, beta=beta)
+                    call check(error, all_close(y1, y2), .true.)
+                    if (allocated(error)) return
+                end do
+            end do
+
+            ! Test y = A @ x for random values of alpha and beta
+            y1 = 0.0_wp
+            call random_number(alpha)
+            call random_number(beta)
+            call random_number(y2)
+            y1 = alpha * matmul(Amat, x) + beta * y2
+            call spmv(A, x, y2, alpha=alpha, beta=beta)
+            call check(error, all_close(y1, y2), .true.)
+            if (allocated(error)) return
+
+            ! Test y = A.T @ x for random values of alpha and beta
+            y1 = 0.0_wp
+            call random_number(alpha)
+            call random_number(beta)
+            call random_number(y2)
+            y1 = alpha * matmul(transpose(Amat), x) + beta * y2
+            call spmv(A, x, y2, alpha=alpha, beta=beta, op="T")
+            call check(error, all_close(y1, y2), .true.)
+            if (allocated(error)) return
+
 
         end block
     end subroutine
